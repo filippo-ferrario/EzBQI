@@ -1,0 +1,8 @@
+Package: EzBQI
+Version: 0.1
+Date: 2020-09-14
+Title: Ecosystem-Based Quality Index tool box	
+Description: Functions to easily calculate the Ecosystem-Based Quality Index and obtain the ecological status class.
+Author: Filippo Ferrario <filippo.f3rrario@gmail.com>
+Maintainer: Filippo Ferrario <filippo.f3rrario@gmail.com>
+RoxygenNote: 7.1.1
