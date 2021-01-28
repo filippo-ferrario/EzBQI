@@ -10,8 +10,10 @@ Current version is: 0.1
 
 To install the package from github use
 
+***branch to add perturbation functions
+
 ```
 library(devtools)
 
-install_github('filippo-ferrario/EzBQI', ref='HEAD', auth_token='05119825c59ea00f92e0497f0dada5eb1fc532f0')
+install_github('filippo-ferrario/EzBQI', ref='sce_mod', auth_token='05119825c59ea00f92e0497f0dada5eb1fc532f0')
 ```
