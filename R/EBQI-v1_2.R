@@ -91,44 +91,72 @@
 #' 
 #' @examples
 #' 
-#' # create input datasets
-#' scores<-data.frame(site=rep('s1',9),
-#'                    sp=c('MPO','arenicola_marina','asteriidae','cancer_irroratus','echinarachnius_parma','strongylocentrotus_droebachiensis','OT-Invertivorous_Invertebrates','Suspension_feeders','Bioturbation'),
-#'                    parameter=rep('density',9), unit='ind/m-2',
-#'                    status=c(2,0,2,4,2,4,4,0,3))
+#' # load input datasets
+#' data(box_scores)
+#' data(models)
+#' data(weights)
 #' 
-#' weights<-data.frame(model='m1', scenario='scen1',box=c('MPO','Herbivore','Detritus feeder','Invertivorous Invertebrates','Infauna','OT-Invertivorous Invertebrates','Bioturbation','Suspension feeder'), weight_1_10=c(10,7,3,6,4,1,1,1))
+#' #subset data
+#' scen_A<-weights[weights$scenario=='scen_A' & weights$model=='mod_1',]
+#' mod_1<-models[models$model=='mod_1',]
 #' 
-#' mods<- data.frame(model='m1',
-#'                      species=c('MPO','arenicola_marina','asteriidae','cancer_irroratus','echinarachnius_parma','strongylocentrotus_droebachiensis','OT-Invertivorous_Invertebrates','Suspension_feeders','Bioturbation','Nereis_sp'),
-#'                      boxes=c('MPO','Detritus feeder','Invertivorous Invertebrates','Invertivorous Invertebrates','Detritus feeder','Herbivore','OT-Invertivorous Invertebrates','Suspension feeder','Bioturbation','Infauna'),
-#'                      box_ID=NA) 
 #' # run the function
-#' EBQI(score_dataset=  scores ,weights_dataset=weights, model_description= mods,
+#' EBQI(score_dataset=  box_scores ,weights_dataset=scen_A, model_description= mod_1,
 #'       SITE='site',DATA_SP='sp',SCORE='status',
-#'       W_BOX='box' ,WEIGHTS='weight_1_10' ,
-#'       MOD_BOX='boxes',MODEL_SP='species')
+#'       W_BOX='box' ,WEIGHTS='weight' )
+#' 
+#' # different columns names
+#' names(mod_1)[names(mod_1)=='sp']<-'species'
+#' names(mod_1)[names(mod_1)=='box']<-'boxes'
+#' 
+#' # should through and error
+#' EBQI(score_dataset=  box_scores ,weights_dataset=scen_A, model_description= mod_1,
+#'       SITE='site',DATA_SP='sp',SCORE='status',
+#'       W_BOX='box' ,WEIGHTS='weight' )
+#' 
+#' # fix species name. should give another error
+#' EBQI(score_dataset=  box_scores ,weights_dataset=scen_A, model_description= mod_1,
+#'       SITE='site',DATA_SP='sp',SCORE='status',
+#'       W_BOX='box' ,WEIGHTS='weight', MODEL_SP='species' )
+#' 
+#' # fix also box name. should run
+#' EBQI(score_dataset=  box_scores ,weights_dataset=scen_A, model_description= mod_1,
+#'       SITE='site',DATA_SP='sp',SCORE='status',
+#'       W_BOX='box' ,WEIGHTS='weight', MODEL_SP='species', MOD_BOX='boxes')
 #' 
 #' 
 #' @export
 
-EBQI<- function(score_dataset ,weights_dataset, model_description, SITE=NULL,DATA_SP=NULL,SCORE=NULL,W_BOX=NULL,WEIGHTS=NULL, MAX_weight=10,MOD_BOX=NULL,  MODEL_SP=NULL,PERTURBATION=0) 
-      {
+EBQI<- function(score_dataset ,weights_dataset, model_description, SITE=NULL,DATA_SP=NULL,SCORE=NULL,W_BOX=NULL,
+                  WEIGHTS=NULL, MAX_weight=10,MOD_BOX=W_BOX, MODEL_SP=DATA_SP, PERTURBATION=0) 
+{
 # Version 1.2
 # SITE, BOX and SCORE need to be caracters specifying the names of the columns in dataframe "dataset" that store the sites, box name, and status score.
 # W_BOX and WEIGHTS are characters specifiyng the name of the column in dataframe "weights_dataset" where box name and weights are stored
 
-      # Semplifiy names
+      # Simplifiy names
       P=PERTURBATION      
       BX<- W_BOX
       W<- WEIGHTS
       S<- SCORE
-      names( model_description)[names( model_description)==MOD_BOX]<-BX
       wei_set<-weights_dataset
       score_set<-score_dataset 
+      mod_set<-model_description
+
+      # names( mod_set)[names( mod_set)==MOD_BOX]<-BX
+
+      # check arguments
+      if (!is.data.frame(wei_set)) stop('\'weights_dataset\' must be a dataframe')
+      if (!is.data.frame(score_set)) stop('\'score_dataset\' must be a dataframe')
+      if (!is.data.frame(mod_set)) stop('\'model_description\' must be a dataframe')      
        
-       # check consistency of Box names and correspondence between datasets
-       chk<-sapply(wei_set[,BX], function(x){ as.character(x) %in% as.character(model_description[,BX])})
+      # check variables names
+      mod_name<-names(mod_set)      
+      if( DATA_SP==MODEL_SP & (! DATA_SP %in% mod_name)) stop('Species columns in \'score_dataset\' and \'model_description\' are different. Provide correct MODEL_SP argument')
+      if( BX==MOD_BOX & (! BX %in% mod_name)) stop('Box columns in \'weights_dataset\' and \'model_description\' are different. Provide correct MOD_BOX argument')
+      
+      # check consistency of Box names and correspondence between datasets
+       chk<-sapply(wei_set[,BX], function(x){ as.character(x) %in% as.character(mod_set[,MOD_BOX])})
        if (sum(chk)<length(chk)) {
             I<-which(chk==F)
             stop('BOX labels not coherent between input datasets! Check for: ',paste(wei_set[I,BX], collapse = ' '))
@@ -136,10 +164,10 @@ EBQI<- function(score_dataset ,weights_dataset, model_description, SITE=NULL,DAT
 
 
       # assign a box to each species in the score_set
-      score_set<- merge(score_set,model_description, by.x=DATA_SP, by.y=MODEL_SP, all.x=TRUE, all.y=FALSE)
+      score_set<- merge(score_set,mod_set, by.x=DATA_SP, by.y=MODEL_SP, all.x=TRUE, all.y=FALSE)
 
        # 1) Wi x Si
-       score_set<-aggregate( score_set[,S], by=list(score_set[,BX],score_set[,SITE]), FUN='mean') # take mean of score per site per box
+       score_set<-aggregate( score_set[,S], by=list(score_set[,MOD_BOX],score_set[,SITE]), FUN='mean') # take mean of score per site per box
        names(score_set)<-c(BX,SITE,'mean_score')
        #score_set$mean_score<-round(score_set$mean_score) # turn off the rounding because it artificially creates differencence in the final EBQI when a box has to be splitted into its components.
         
@@ -179,5 +207,5 @@ EBQI<- function(score_dataset ,weights_dataset, model_description, SITE=NULL,DAT
         res<-list(ebqi=EI, scores=scores_box[,c(SITE,BX,'mean_score')])
         return(res)      
 
-        }
+}
 
