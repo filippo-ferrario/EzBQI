@@ -1,4 +1,4 @@
-load('./data/mods.RData')
+load('./data/models.RData')
 #' descr
 #' 
 #' moer exple
@@ -34,4 +34,4 @@ load('./data/mods.RData')
 #' summary(mods)
 #' str(mods)
 #' 
-'mods'
+'models'
