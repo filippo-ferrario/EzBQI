@@ -2,7 +2,7 @@
  R package to calculate the Ecosystem-Based Quality Index
 
 To cite this package please use the reference:
-Ferrario, F., Johnson, L.E., McKindsey, C.W., Archambault, P., 2021. Ecosystem-Based Quality Index in a harbor bay: Assessing the status of a heterogeneous system in a functional framework at a local scale. Ecol. Indic. 132, 108260. https://doi.org/https://doi.org/10.1016/j.ecolind.2021.108260
+Ferrario, F., Johnson, L.E., McKindsey, C.W., Archambault, P., 2021. Ecosystem-Based Quality Index in a harbor bay: Assessing the status of a heterogeneous system in a functional framework at a local scale. Ecol. Indic. 132, 108260. https://doi.org/10.1016/j.ecolind.2021.108260
 
 Current version is: 0.1
 
