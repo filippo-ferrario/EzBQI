@@ -6,12 +6,17 @@ Ferrario, F., Johnson, L.E., McKindsey, C.W., Archambault, P., 2021. Ecosystem-B
 
 Current version is: 0.1
 
+The package is under active development. Coming next:
+- function to perturbate the EBQI an Robustness analysis
+- sample datasets
+- Improve documentation
+
 To install the package from github use
 
 ```
 library(devtools)
 
-install_github('filippo-ferrario/EzBQI', ref='HEAD', auth_token='05119825c59ea00f92e0497f0dada5eb1fc532f0')
+install_github('filippo-ferrario/EzBQI', ref='HEAD')
 ```
 
 
